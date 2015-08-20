@@ -13,6 +13,7 @@ namespace AgaBackend
         public void Configuration(IAppBuilder app)
         {
             ConfigureAuth(app);
+            Bootstrapper.Configure();
         }
     }
 }

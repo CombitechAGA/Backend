@@ -1,39 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using AgaBackend.Controllers;
+using AgaBackend.Datasource;
 using AgaBackend.Dto;
 using AgaBackend.Models;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
 namespace AgaBackend.Services
 {
-    public class AgaMongoService
+    public class StatsService: IStatsService
     {
-        private readonly string _database;
+        private readonly IMongoDatasource<Snapshot> _datasource;
 
-        public AgaMongoService(string connectionstring, string database)
+        public StatsService(IMongoDatasource<Snapshot> datasource)
         {
-            _database = database;
-            _client = new MongoClient(connectionstring);
+            _datasource = datasource;
         }
-
-        private MongoClient _client;
 
         public List<AverageSpeedDto> GetAverageSpeeds(DateTime from, DateTime to)
         {
-            var server = _client.GetServer();
-            var db = server.GetDatabase(_database);
-            var col = db.GetCollection<Snapshot>("snapshot");
-
-
             var query = Query.And(
                 Query.GTE("timestamp", from),
                 Query.LTE("timestamp", to));
 
-            var result = col.Find(query);//.OrderBy(f=>f.Timestamp);
+            var result = _datasource.Find(query);//.OrderBy(f=>f.Timestamp);
             var dates = result.GroupBy(f => f.timestamp.Date);
 
             var listAverageSpeeds = new List<AverageSpeedDto>();
