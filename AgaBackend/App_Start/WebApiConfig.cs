@@ -16,6 +16,8 @@ namespace AgaBackend
     {
         public static void Register(HttpConfiguration config)
         {
+            config.EnableCors();
+
             //config.Formatters.JsonFormatter.UseDataContractJsonSerializer = true;
             // Web API configuration and services
             // Configure Web API to use only bearer token authentication.

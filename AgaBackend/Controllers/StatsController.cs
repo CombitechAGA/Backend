@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Web.Http;
+using System.Web.Http.Cors;
 using AgaBackend.Dto;
 using AgaBackend.Services;
 
 namespace AgaBackend.Controllers
 {
     [RoutePrefix("api/stats")]
+    [EnableCors(origins: "http://localhost:55477", headers: "*", methods: "*")]
     public class StatsController : ApiController
     {
         private readonly IStatsService _statsService;
