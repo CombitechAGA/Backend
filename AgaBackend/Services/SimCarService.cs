@@ -22,6 +22,8 @@ namespace AgaBackend.Services
 
         public List<RouteModel> GetRoutes(DateTime from) // return list of stored caluclated routes
         {
+            DateTime datetime = DateTime.MinValue;
+
             var query = Query.GTE("timestamp", from);
 
             var result = _routedatasource.Find(query);//.OrderBy(f=>f.Timestamp);
@@ -33,9 +35,14 @@ namespace AgaBackend.Services
                 listOfRoutes.Add(new RouteModel { RouteId = route.RouteId, carID = route.carID, timestamp = route.timestamp, Snapshots = route.Snapshots });
             }
 
-            var calculatedRoutes = CalculateRoutes(listOfRoutes.Last().timestamp); // find new routes succeding last stored entry
+            if (listOfRoutes.Count() > 0)
+            {
+                datetime = listOfRoutes.Last().timestamp; 
+            }
+ 
+            var calculatedRoutes = CalculateRoutes(datetime); // find new routes succeding last stored entry
             listOfRoutes.AddRange(calculatedRoutes); // add new routes to saved routes
-            // lägg till
+
             return listOfRoutes;
         }
 
@@ -66,6 +73,20 @@ namespace AgaBackend.Services
             }
         }
 
+        public void SetupRoute(List<Snapshot> snapshotlist) // prepare a new route
+        {
+            List<RouteModel> detectedRoutes = new List<RouteModel>();
+            var routeItem = new RouteModel();
+
+            routeItem.RouteId = snapshotlist.Last().ObjectId;
+            routeItem.carID = snapshotlist.Last().carID;
+            routeItem.timestamp = snapshotlist.Last().timestamp; // last timestamp of snapshot in route
+            routeItem.Snapshots = snapshotlist;
+            detectedRoutes.Add(routeItem);
+
+            AddRoutes(detectedRoutes); // save the new route
+        }
+
         public IEnumerable<RouteModel> CalculateRoutes(DateTime from)
         {
             List<RouteModel> detectedRoutes = new List<RouteModel>();
@@ -74,28 +95,13 @@ namespace AgaBackend.Services
 
             foreach (var car in result)
             {
-                bool carSpeedIsZero = false;
+                bool carSpeedIsZero = false, createRoute = false, carIsMoving = false;
                 DateTime zeroStamp = new DateTime();
                 List<Snapshot> snapShotList = new List<Snapshot>();
-                bool routeCreated = false;
-
+  
                 foreach (var snapshot in car)
                 {
                     snapShotList.Add(snapshot); // add snapshot to snapshotlist in route
-
-                    if (!routeCreated) // first snapshotentry - create route
-                    {
-                        var routeItem = new RouteModel();
-
-                        routeItem.RouteId = snapshot.ObjectId;
-                        routeItem.carID = snapshot.carID;
-                        routeItem.timestamp = snapshot.timestamp; // last timestamp of snapshot in route
-                        routeItem.Snapshots = snapShotList;
-                        detectedRoutes.Add(routeItem);
-
-                        AddRoutes(detectedRoutes); // save the new route
-                        routeCreated = true;
-                    }
 
                     if (Math.Abs(snapshot.speed) == 0)
                     {
@@ -108,13 +114,23 @@ namespace AgaBackend.Services
                         {
                             if (snapshot.timestamp.Subtract(zeroStamp).TotalSeconds > 120) // time from first snapshot with speed 0 until current snapshot is at least 120 secs:  end of route
                             {
-                                routeCreated = false; // ev. following snapshots to new route
                                 carSpeedIsZero = false;
-                                snapShotList.Clear();
+                                if (carIsMoving) // dont store route when all snapshot speed is zero
+                                {
+                                    SetupRoute(snapShotList);
+                                    carIsMoving = false;
+                                    snapShotList.Clear();
+                                }
                             }
                         }
                     }
+                    else
+                        carIsMoving = true; // could be parametrized
+                }
 
+                if (carIsMoving) // dont store route when all snapshot speed is zero
+                {
+                    SetupRoute(snapShotList);
                 }
             }
             return detectedRoutes;

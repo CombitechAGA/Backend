@@ -35,7 +35,8 @@ namespace AgaBackend
             containerBuilder.RegisterType<AgaMongoServer>().As<IAgaMongoServer>().SingleInstance();
 
             containerBuilder.RegisterType<MongoDataSource<Snapshot>>().As<IMongoDatasource<Snapshot>>().WithParameter("datasourceParams",new DatasourceParams () {CollectionName = "snapshot", DatabaseName = "telemetry"}).InstancePerRequest();
-            
+            containerBuilder.RegisterType<MongoDataSource<RouteModel>>().As<IMongoDatasource<RouteModel>>().WithParameter("datasourceParams", new DatasourceParams() { CollectionName = "routes", DatabaseName = "telemetry" }).InstancePerRequest();
+
             IContainer container = containerBuilder.Build();
             GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(container);
         }
