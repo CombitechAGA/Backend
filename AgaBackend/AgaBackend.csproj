@@ -20,6 +20,7 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -149,6 +150,13 @@
     <Compile Include="App_Start\SwaggerConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="App_Start\Bootstrapper.cs" />
+    <Compile Include="Controllers\SimJobController.cs" />
+    <Compile Include="Controllers\SimController.cs" />
+    <Compile Include="Dto\RouteDto.cs" />
+    <Compile Include="Dto\SimJobDto.cs" />
+    <Compile Include="Dto\SimDataGetJobsDto.cs" />
+    <Compile Include="Services\ISimJobService.cs" />
+    <Compile Include="Services\ISimCarService.cs" />
     <Compile Include="Services\IStatsService.cs" />
     <Compile Include="Controllers\StatsController.cs" />
     <Compile Include="Datasource\AgaMongoClient.cs" />
@@ -170,6 +178,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
+    <Compile Include="Services\SimJobService.cs" />
+    <Compile Include="Services\SimCarService.cs" />
     <Compile Include="Services\StatsService.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
