@@ -25,5 +25,16 @@ namespace AgaBackend.Datasource
         {
             _collection.Save(objectStore);
         }
+
+        public void RemoveAll()
+        {
+            _collection.RemoveAll();
+        }
+
+        public void Remove(IMongoQuery query)
+        {
+            _collection.Remove(query);
+        }
+
     }
 }

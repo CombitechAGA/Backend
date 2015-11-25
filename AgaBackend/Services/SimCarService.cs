@@ -20,10 +20,15 @@ namespace AgaBackend.Services
             _snapshotdatasource = snapshotDatasource;
         }
 
+        public List<RouteModel> GetAllRoutes() // return list of stored caluclated routes
+        {
+            return (GetRoutes(new DateTime(2015,10,01)));
+        }
+
         public List<RouteModel> GetRoutes(DateTime from) // return list of stored caluclated routes
         {
             DateTime datetime = DateTime.MinValue;
-
+            //_routedatasource.RemoveAll(); // TEMP
             var query = Query.GTE("timestamp", from);
 
             var result = _routedatasource.Find(query);//.OrderBy(f=>f.Timestamp);
@@ -46,25 +51,6 @@ namespace AgaBackend.Services
             return listOfRoutes;
         }
 
-#if false
-        public List<RouteDto> GetRoutes(DateTime from) // return list of stored caluclated routes
-        {
-            var query = Query.GTE("timestamp", from);
-
-            var result = _routedatasource.Find(query);//.OrderBy(f=>f.Timestamp);
-
-            var listOfRoutes = new List<RouteDto>();
-  
-            foreach (var route in result)
-            {
-                listOfRoutes.Add(new RouteDto { CarId = route.carID, RouteId = route.RouteId, Date = route.timestamp });
-            }
-
-            var calculatedRoutes = CalculateRoutes(listOfRoutes.Last().Date); // find new routes succeding last stored entry
-            // lägg till
-            return listOfRoutes;
-        }
-#endif
         public void AddRoutes(IEnumerable<RouteModel> routes) // save a new calculated route
         {
             foreach (var route in routes)
@@ -73,7 +59,15 @@ namespace AgaBackend.Services
             }
         }
 
-        public void SetupRoute(List<Snapshot> snapshotlist) // prepare a new route
+        public void DeleteRoutes(IEnumerable<RouteModel> routes) // save a new calculated route
+        {
+            foreach (var route in routes)
+            {
+                _routedatasource.Save(route);
+            }
+        }
+
+        public IEnumerable<RouteModel> SaveRoute(List<Snapshot> snapshotlist) // prepare a new route
         {
             List<RouteModel> detectedRoutes = new List<RouteModel>();
             var routeItem = new RouteModel();
@@ -85,6 +79,8 @@ namespace AgaBackend.Services
             detectedRoutes.Add(routeItem);
 
             AddRoutes(detectedRoutes); // save the new route
+
+            return detectedRoutes;
         }
 
         public IEnumerable<RouteModel> CalculateRoutes(DateTime from)
@@ -95,7 +91,7 @@ namespace AgaBackend.Services
 
             foreach (var car in result)
             {
-                bool carSpeedIsZero = false, createRoute = false, carIsMoving = false;
+                bool carSpeedIsZero = false, carIsMoving = false;
                 DateTime zeroStamp = new DateTime();
                 List<Snapshot> snapShotList = new List<Snapshot>();
   
@@ -112,12 +108,12 @@ namespace AgaBackend.Services
                         }
                         else
                         {
-                            if (snapshot.timestamp.Subtract(zeroStamp).TotalSeconds > 120) // time from first snapshot with speed 0 until current snapshot is at least 120 secs:  end of route
+                            if (snapshot.timestamp.Subtract(zeroStamp).TotalSeconds > 60) // time from first snapshot with speed 0 until current snapshot is at least 120 secs:  end of route
                             {
                                 carSpeedIsZero = false;
                                 if (carIsMoving) // dont store route when all snapshot speed is zero
                                 {
-                                    SetupRoute(snapShotList);
+                                    detectedRoutes.AddRange(SaveRoute(snapShotList));
                                     carIsMoving = false;
                                     snapShotList.Clear();
                                 }
@@ -130,55 +126,11 @@ namespace AgaBackend.Services
 
                 if (carIsMoving) // dont store route when all snapshot speed is zero
                 {
-                    SetupRoute(snapShotList);
+                    detectedRoutes.AddRange(SaveRoute(snapShotList));
                 }
             }
             return detectedRoutes;
         }
     }
 }
-
-#if false
-            foreach (var car in result)
-            {
-                bool carSpeedIsZero = false;
-                bool endOfRoute = false;
-                DateTime zeroStamp = new DateTime();
-                List<Snapshot> snapShotList = new List<Snapshot>();
-               
-                foreach (var snapshot in car)
-                {
-                   if (Math.Abs(snapshot.speed) == 0) 
-                   {
-                       if (!carSpeedIsZero) // first snapshot found with speed 0
-                       {
-                           zeroStamp = snapshot.timestamp;
-                           carSpeedIsZero = true;
-                       }
-                       else
-                       {
-                           if (snapshot.timestamp.Subtract(zeroStamp).TotalSeconds > 120) // time from first snapshot with speed 0 until current snapshot is at least 120 secs. New route.
-                           { 
-                               endOfRoute = true;
-                               carSpeedIsZero = false;
-                           }
-                       }
-                   }
-                   snapShotList.Add(snapshot); // add snapshot to snapshotlist
-
-                   if (car.Last(snapshot) ||  endOfRoute)
-                   {
-                       var routeItem = new RouteModel();
-
-                       routeItem.RouteId = snapshot.ObjectId;
-                       routeItem.carID = snapshot.carID;
-                       routeItem.timestamp = snapshot.timestamp; // last timestamp of snapshot in route
-                       routeItem.Snapshots = snapShotList;
-                       detectedRoutes.Add(routeItem);
-                       endOfRoute = false;
-                       snapShotList.Clear();
-                   }
-                }
-            }
-#endif
 

@@ -20,6 +20,14 @@ namespace AgaBackend.Controllers
         }
 
         [Route("routes")]
+        public IHttpActionResult GetAllRoutes() // show all available routes: 1. get all saved routes 2. identify new routes 3. save new routes 4.  show all routes
+        {
+            var from = new DateTime(2015,09,01);
+            var routeList = _simService.GetRoutes(from); // list all stored and new routes from speciified date
+            return Ok(routeList);
+        }
+
+#if false
         public IHttpActionResult GetRoutes(DateTime from) // show all available routes: 1. get all saved routes 2. identify new routes 3. save new routes 4.  show all routes
         {
 
@@ -27,6 +35,7 @@ namespace AgaBackend.Controllers
             return Ok(routeList); 
             
         }
+#endif
     }
 }
 

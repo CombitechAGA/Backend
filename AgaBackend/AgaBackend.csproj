@@ -153,8 +153,10 @@
     <Compile Include="Controllers\SimJobController.cs" />
     <Compile Include="Controllers\SimController.cs" />
     <Compile Include="Dto\RouteDto.cs" />
-    <Compile Include="Dto\SimJobDto.cs" />
     <Compile Include="Dto\SimDataGetJobsDto.cs" />
+    <Compile Include="Models\SimJobRouteModel.cs" />
+    <Compile Include="Models\RouteModel.cs" />
+    <Compile Include="Models\SimJobModel.cs" />
     <Compile Include="Services\ISimJobService.cs" />
     <Compile Include="Services\ISimCarService.cs" />
     <Compile Include="Services\IStatsService.cs" />

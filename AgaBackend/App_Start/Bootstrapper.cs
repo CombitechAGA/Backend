@@ -28,14 +28,15 @@ namespace AgaBackend
             containerBuilder.RegisterApiControllers(Assembly.GetExecutingAssembly());
 
             containerBuilder.RegisterType<SimCarService>().As<ISimCarService>().InstancePerRequest();
-
             containerBuilder.RegisterType<StatsService>().As<IStatsService>().InstancePerRequest();
-         
+            containerBuilder.RegisterType<SimJobService>().As<ISimJobService>().InstancePerRequest();
+
             containerBuilder.RegisterType<AgaMongoClient>().As<IAgaMongoClient>().SingleInstance();
             containerBuilder.RegisterType<AgaMongoServer>().As<IAgaMongoServer>().SingleInstance();
 
             containerBuilder.RegisterType<MongoDataSource<Snapshot>>().As<IMongoDatasource<Snapshot>>().WithParameter("datasourceParams",new DatasourceParams () {CollectionName = "snapshot", DatabaseName = "telemetry"}).InstancePerRequest();
             containerBuilder.RegisterType<MongoDataSource<RouteModel>>().As<IMongoDatasource<RouteModel>>().WithParameter("datasourceParams", new DatasourceParams() { CollectionName = "routes", DatabaseName = "telemetry" }).InstancePerRequest();
+            containerBuilder.RegisterType<MongoDataSource<SimJobModel>>().As<IMongoDatasource<SimJobModel>>().WithParameter("datasourceParams", new DatasourceParams() { CollectionName = "simjob", DatabaseName = "telemetry" }).InstancePerRequest();
 
             IContainer container = containerBuilder.Build();
             GlobalConfiguration.Configuration.DependencyResolver = new AutofacWebApiDependencyResolver(container);

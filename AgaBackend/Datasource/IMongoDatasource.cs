@@ -6,5 +6,7 @@ namespace AgaBackend.Datasource
     {
         MongoCursor<T> Find(IMongoQuery query);
         void Save(T objectStore);
+        void RemoveAll();
+        void Remove(IMongoQuery query);
     }
 }

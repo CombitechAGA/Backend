@@ -33,12 +33,12 @@ namespace AgaBackend
                 defaults: new { id = RouteParameter.Optional }
             );
 
-            //var jsonFormatter = config.Formatters.OfType<JsonMediaTypeFormatter>().First();
-            //jsonFormatter.SerializerSettings.Error =
-            //    delegate(object sender, ErrorEventArgs args)
-            //    {
-            //        System.Diagnostics.EventLog.WriteEntry(args.ErrorContext.Error.TargetSite.DeclaringType.ToString(), args.ErrorContext.Error.Message, EventLogEntryType.Error);
-            //    };
+            var jsonFormatter = config.Formatters.OfType<JsonMediaTypeFormatter>().First();
+            jsonFormatter.SerializerSettings.Error =
+                delegate (object sender, ErrorEventArgs args)
+                {
+                    Debug.WriteLine(args.ErrorContext.Error.Message);
+                };
             //jsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             //jsonFormatter.SerializerSettings.Converters.Add(new IsoDateTimeConverter());
             //jsonFormatter.SerializerSettings.NullValueHandling = NullValueHandling.Include;
