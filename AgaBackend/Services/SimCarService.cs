@@ -20,12 +20,12 @@ namespace AgaBackend.Services
             _snapshotdatasource = snapshotDatasource;
         }
 
-        public List<RouteModel> GetAllRoutes() // return list of stored caluclated routes
+        public List<RouteModel> GetAllRoutes() // return list of stored calculated routes
         {
             return (GetRoutes(new DateTime(2015,10,01)));
         }
 
-        public List<RouteModel> GetRoutes(DateTime from) // return list of stored caluclated routes
+        public List<RouteModel> GetRoutes(DateTime from) // return list of stored calculated routes
         {
             DateTime datetime = DateTime.MinValue;
             //_routedatasource.RemoveAll(); // TEMP
